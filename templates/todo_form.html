@@ -1,0 +1,55 @@
+<!-- templates/todo_form.html -->
+{% extends "base.html" %}
+
+{% block title %}{{ 'Edit' if todo else 'New' }} Todo - Task Master{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h3 class="text-center">{{ 'Edit' if todo else 'Create' }} Task</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="title" name="title" value="{{ todo.title if todo else '' }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3">{{ todo.description if todo else '' }}</textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="due_date" class="form-label">Due Date</label>
+                        <input type="date" class="form-control" id="due_date" name="due_date" value="{{ todo.due_date.strftime('%Y-%m-%d') if todo and todo.due_date else '' }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="priority" class="form-label">Priority</label>
+                        <select class="form-select" id="priority" name="priority">
+                            <option value="1" {% if todo and todo.priority == 1 %}selected{% endif %}>Low</option>
+                            <option value="2" {% if todo and todo.priority == 2 %}selected{% endif %}>Medium</option>
+                            <option value="3" {% if todo and todo.priority == 3 %}selected{% endif %}>High</option>
+                        </select>
+                    </div>
+                    
+                    {% if todo %}
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="completed" name="completed" {% if todo.completed %}checked{% endif %}>
+                        <label class="form-check-label" for="completed">Completed</label>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary me-md-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">{{ 'Update' if todo else 'Create' }}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

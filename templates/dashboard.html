@@ -1,0 +1,144 @@
+<!-- templates/dashboard.html -->
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Task Master{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Your Tasks</h1>
+    <a href="{{ url_for('new_todo') }}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> New Task
+    </a>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white card-dashboard">
+            <div class="card-body text-center">
+                <h2>{{ todos|length }}</h2>
+                <p>Total Tasks</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white card-dashboard">
+            <div class="card-body text-center">
+                <h2>{{ todos|selectattr('completed', 'eq', true)|list|length }}</h2>
+                <p>Completed</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-dark card-dashboard">
+            <div class="card-body text-center">
+                <h2>{{ todos|selectattr('completed', 'eq', false)|list|length }}</h2>
+                <p>Pending</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-danger text-white card-dashboard">
+            <div class="card-body text-center">
+                <h2>{{ todos|selectattr('priority', 'eq', 3)|selectattr('completed', 'eq', false)|list|length }}</h2>
+                <p>High Priority</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if todos %}
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Your Todo List</h5>
+            <div>
+                <select id="priorityFilter" class="form-select form-select-sm d-inline-block me-2" style="width: auto;">
+                    <option value="all">All Priorities</option>
+                    <option value="high">High Priority</option>
+                    <option value="medium">Medium Priority</option>
+                    <option value="low">Low Priority</option>
+                </select>
+                <button class="btn btn-sm btn-outline-secondary" id="toggleCompletedBtn">
+                    <i class="fas fa-eye-slash"></i> Hide Completed
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="list-group list-group-flush task-list">
+        {% for todo in todos %}
+        <div class="list-group-item todo-item d-flex justify-content-between align-items-center 
+            {% if todo.completed %}todo-completed{% endif %} 
+            {% if todo.priority == 3 %}priority-high{% elif todo.priority == 2 %}priority-medium{% else %}priority-low{% endif %}">
+            
+            <div class="ms-2 me-auto">
+                <div class="fw-bold">{{ todo.title }}</div>
+                <small class="text-muted">
+                    Created: <span class="format-date" data-date="{{ todo.created_at }}">{{ todo.created_at.strftime('%Y-%m-%d') }}</span>
+                    {% if todo.due_date %}
+                    | Due: <span class="format-date {% if not todo.completed and todo.due_date.date() <= now().date() %}due-soon{% endif %}" 
+                        data-date="{{ todo.due_date }}">{{ todo.due_date.strftime('%Y-%m-%d') }}</span>
+                    {% endif %}
+                </small>
+            </div>
+            
+            <div class="d-flex">
+                <form action="{{ url_for('toggle_todo', todo_id=todo.id) }}" method="POST" class="me-2">
+                    <button type="submit" class="btn btn-sm {% if todo.completed %}btn-success{% else %}btn-outline-success{% endif %}">
+                        <i class="fas {% if todo.completed %}fa-check-circle{% else %}fa-circle{% endif %}"></i>
+                    </button>
+                </form>
+                
+                <!-- Add reminder button -->
+                <a href="{{ url_for('set_reminder', todo_id=todo.id) }}" class="btn btn-sm btn-secondary me-2" 
+                   data-bs-toggle="tooltip" data-bs-placement="top" 
+                   title="{% if todo.reminder_time %}Reminder set for {{ todo.reminder_time.strftime('%Y-%m-%d %I:%M %p') }}{% else %}Set reminder{% endif %}">
+                    <i class="fas fa-bell{% if todo.reminder_time and not todo.reminder_sent %} text-warning{% endif %}"></i>
+                </a>
+                
+                <a href="{{ url_for('view_todo', todo_id=todo.id) }}" class="btn btn-sm btn-info me-2">
+                    <i class="fas fa-eye"></i>
+                </a>
+                
+                <a href="{{ url_for('edit_todo', todo_id=todo.id) }}" class="btn btn-sm btn-warning me-2">
+                    <i class="fas fa-edit"></i>
+                </a>
+                
+                <button type="button" class="btn btn-sm btn-danger" 
+                        data-bs-toggle="modal" data-bs-target="#deleteModal{{ todo.id }}">
+                    <i class="fas fa-trash"></i>
+                </button>
+                
+                <!-- Delete Confirmation Modal -->
+                <div class="modal fade" id="deleteModal{{ todo.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ todo.id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteModalLabel{{ todo.id }}">Confirm Delete</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                Are you sure you want to delete the task "{{ todo.title }}"?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <form action="{{ url_for('delete_todo', todo_id=todo.id) }}" method="POST">
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% else %}
+<div class="alert alert-info">
+    <h4 class="alert-heading">No tasks yet!</h4>
+    <p>You haven't created any tasks yet. Click the "New Task" button to get started.</p>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}{% endblock %}

@@ -1,0 +1,74 @@
+<!-- templates/set_reminder.html -->
+{% extends "base.html" %}
+
+{% block title %}Set Reminder - Task Master{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Reminder for "{{ todo.title }}"</h2>
+    
+    {% if todo.reminder_sent %}
+    <div class="alert alert-warning mb-4">
+        <h5>Past Reminder</h5>
+        <p>A reminder for this task was already sent. You can set a new reminder below.</p>
+    </div>
+    
+    <form action="{{ url_for('set_reminder', todo_id=todo.id) }}" method="POST" id="reminderForm">
+        <div class="mb-3">
+            <label for="reminder_time" class="form-label">New Reminder Time</label>
+            <input type="datetime-local" id="reminder_time" name="reminder_time" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Reminder</button>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
+    </form>
+    {% elif todo.reminder_time %}
+    <div class="alert alert-info mb-4">
+        <h5>Existing Reminder</h5>
+        <p>You already have a reminder set for: <strong>{{ todo.reminder_time.strftime('%Y-%m-%d %I:%M %p') }}</strong></p>
+        
+        <div class="mt-3">
+            <form action="{{ url_for('delete_reminder', todo_id=todo.id) }}" method="POST" class="d-inline">
+                <button type="submit" class="btn btn-danger">Delete Reminder</button>
+            </form>
+            <button class="btn btn-primary" id="changeReminderBtn">Change Reminder</button>
+        </div>
+    </div>
+    
+    <form action="{{ url_for('set_reminder', todo_id=todo.id) }}" method="POST" 
+          id="reminderForm" style="display: {% if request.method == 'GET' %}none{% else %}block{% endif %};">
+        <div class="mb-3">
+            <label for="reminder_time" class="form-label">Reminder Time</label>
+            <input type="datetime-local" id="reminder_time" name="reminder_time" class="form-control" 
+                   value="{{ todo.reminder_time.strftime('%Y-%m-%dT%H:%M') }}" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Reminder</button>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
+    </form>
+    {% else %}
+    <form action="{{ url_for('set_reminder', todo_id=todo.id) }}" method="POST" id="reminderForm">
+        <div class="mb-3">
+            <label for="reminder_time" class="form-label">Reminder Time</label>
+            <input type="datetime-local" id="reminder_time" name="reminder_time" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Reminder</button>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
+    </form>
+    {% endif %}
+</div>
+
+{% if todo.reminder_time and not todo.reminder_sent %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const changeReminderBtn = document.getElementById('changeReminderBtn');
+        const reminderForm = document.getElementById('reminderForm');
+        
+        if (changeReminderBtn) {
+            changeReminderBtn.addEventListener('click', function() {
+                reminderForm.style.display = 'block';
+                this.parentElement.style.display = 'none';
+            });
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}

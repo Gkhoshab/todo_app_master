@@ -1,0 +1,59 @@
+<!-- templates/index.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h1 class="text-center">Welcome to Task Master</h1>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <h4>Your Personal Todo List Manager</h4>
+                    <p class="lead">Organize your tasks, boost your productivity</p>
+                </div>
+                
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <i class="fas fa-list-check fa-3x mb-3 text-primary"></i>
+                                <h5>Create Tasks</h5>
+                                <p>Add todos with titles, descriptions, and due dates</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <i class="fas fa-star fa-3x mb-3 text-warning"></i>
+                                <h5>Set Priorities</h5>
+                                <p>Organize by importance with priority levels</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <i class="fas fa-check-double fa-3x mb-3 text-success"></i>
+                                <h5>Track Progress</h5>
+                                <p>Mark tasks as completed when finished</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-lg btn-primary">Go to Dashboard</a>
+                    {% else %}
+                        <a href="{{ url_for('register') }}" class="btn btn-lg btn-primary me-2">Sign Up</a>
+                        <a href="{{ url_for('login') }}" class="btn btn-lg btn-outline-primary">Login</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
