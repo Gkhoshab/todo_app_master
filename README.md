@@ -78,6 +78,10 @@ CREATE DATABASE todo_app;
 
 ### 6. Initialize the database
 
+You have two options for setting up the database:
+
+#### Option 1: Start with an empty database using Flask migrations
+
 ```bash
 # Run the database initialization script
 python init_postgres_db.py
@@ -85,6 +89,17 @@ python init_postgres_db.py
 # Run migrations
 flask db upgrade
 ```
+
+#### Option 2: Use the database schema file
+
+If you want to set up just the database structure quickly:
+
+```bash
+# Make sure PostgreSQL is running and the database exists
+psql -U postgres -d todo_app -f database_dump.sql
+```
+
+This will create all the necessary tables, indexes, and constraints in your todo_app database, but will not add any data.
 
 ## Running the Application
 
