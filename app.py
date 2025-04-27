@@ -1,3 +1,14 @@
+#CSE 412 DATABASE PROJECT
+#TASK MASTER
+#GROUP 30
+#TEAM MEMBERS:
+#1. Giovanni Khoshaba
+#2. Andrew Ramirez
+#3. Sebastian Deras
+#4.Tinh Nhi Nguyen
+#4/26/2025
+
+
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
